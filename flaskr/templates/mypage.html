@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<br>
+<h3>저장한 뉴스 <span class="badge badge-info">{{datas_length}}</span></h3><hr style="border: solid 2px white;">
+{% if datas_length != 0 %}
+    <div class="ajax">
+    {% for post in datas %}
+        <div class="row rounded">
+            <div class="col text-center">
+                <a href="{{post.news_url}}" target="_blank"><strong>{{ post.news_title }}</strong></a>
+            </div>
+            <div class="col-2">
+                <small>{{post.stored_time.strftime("%y/%m/%d %p %H:%M")}}</small>
+            </div>
+            <div class="col-2">
+                <button class="btn btn-danger" index="{{post.news_id}}">삭제</button>
+            </div>
+          </div><hr style="border: solid 0.5px white;">
+    {% endfor %}
+    </div>
+    
+{% else %}
+    <br><h1>저장된 뉴스가 없습니다.</h1><br>
+    <a href="{{ url_for('index') }}"><button class="btn btn-dark" type="submit">뒤로가기</button></a>
+{% endif %}
+
+<!--JQuery-->
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $(document).on('click', '.btn', function(){
+            index = $(this).attr("index");
+            console.log(index)
+            $.ajax({
+                type: 'POST',
+                url: '/delete',
+                data: JSON.stringify({
+                    'index': index
+                }),
+                contentType: "application/json",
+                success: function(result){
+                    alert('삭제되었습니다.')
+                    var str = ""
+                    if(result.datas.length < 1){
+                        $('.badge').html(result.datas.length)
+                        str += '<br><h1>저장된 뉴스가 없습니다.</h1><br>'
+                        str += '<a href="/"><button class="btn btn-dark">뒤로가기</button></a>'
+                        $('.ajax').html(str)
+                    }
+                    else{
+                        $.each(result.datas, function(key, value){
+                            str += '<div class="row rounded"><div class="col text-center">'
+                            str += '<a href="'+ value.news_url +'" target="_blank"><strong>'+ value.news_title+'</strong></a></div>'
+                            str += '<div class="col-2"><small>'+ value.stored_time +'</small></div>'
+                            str += '<div class="col-2"><button class="btn btn-danger" index="'+value.news_id+'">삭제</button></div>'
+                            str += '</div><hr style="border: solid 0.5px white;">'
+                        })
+                        $('.badge').html(result.datas.length)
+                        $('.ajax').html(str)
+                    }
+
+                    $.each(result.datas2, function(key,value){
+                        console.log(value.news_url +" / "+ value.news_title + ' / ' + value.stored_time)
+                    })
+                },
+                error: function(request, status, error){
+                    alert('ajax 통신 실패')
+                    console.log(error)
+                    alert(status)
+                    alert(error);
+                }
+            })
+        })
+    })
+</script>
+
+{% endblock %}

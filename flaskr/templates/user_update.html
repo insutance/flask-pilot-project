@@ -1,0 +1,20 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages()%}
+    <script>alert('{{ message }}')</script>    
+    {% endfor %}
+
+    <form class="form-signin" method='post'>
+        {{form.csrf_token}}
+        <a href="{{url_for('index')}}"><img class="mb-4" src="https://getbootstrap.com/docs/4.5/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72"></a>
+        <h1 class="h3 mb-3 font-weight-normal">{{session.id}} 님</h1>
+        <h3 class="h3 mb-3 font-weight-normal">변경할 비밀번호 입력</h3>
+
+        {{form.password1(class="form-control", placeholder="비밀번호를 입력하시오.")}}
+        {{form.password2(class="form-control", placeholder="비밀번호를 다시 입력하시오.")}}
+        <br>
+        {{form.submit(class="btn-lg btn-primary btn-block")}}
+        <p class="mt-5 mb-3 text-muted">&copy; 보뉴보뉴</p>
+    </form>
+{% endblock %}

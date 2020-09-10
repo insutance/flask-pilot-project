@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if not session.id %}
+    <h1 class="cover-heading">Project Name</h1>
+    <p class="lead">Describe Project</p>
+    <p class="lead">
+    <a href="{{url_for('login')}}" class="btn btn-lg btn-secondary">로그인</a>
+    </p>
+    {% else %}
+    <h1 class="cover-heading">{{id}} 님 안녕하세요</h1>
+    <p>{{id}} 님 안녕하세요</p>
+    <p class="lead">
+    
+    </p>
+{% endif%}
+
+{% endblock %}

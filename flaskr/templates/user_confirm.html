@@ -1,0 +1,18 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+    {% for message in get_flashed_messages()%}
+      <script>alert('{{ message }}')</script>    
+    {% endfor %}
+
+    <form class="form-signin" method='post'>
+        <a href="{{url_for('index')}}"><img class="mb-4" src="https://getbootstrap.com/docs/4.5/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72"></a>
+        <h1 class="h3 mb-3 font-weight-normal">회원확인 페이지</h1>
+
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" name="input_ConfirmPassword" class="form-control" placeholder="패스워드를 입력하시오" required>
+        
+        <button class="btn btn-lg btn-primary btn-block" type="submit">확인</button>
+        <p class="mt-5 mb-3 text-muted">&copy; 보뉴보뉴</p>
+    </form>
+{% endblock %}

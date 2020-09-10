@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% for message in get_flashed_messages()%}
+        <script>alert('{{ message }}')</script>
+    {% endfor %}
+
+{% if not session.id %}
+    <div class="border border-warning">
+        <h2 class="cover-heading text-warning">"보고 싶은 뉴스, 보여주고 싶은 뉴스"</h2>
+    </div><br>
+    <p class="lead">
+        <span>보고싶은 뉴스</span>를 검색해 데이터를 가져오고<br>
+        <span>보여주고 싶은 뉴스</span>를 저장하는 홈페이지입니다.
+    </p>
+    <p class="lead">
+    <a href="{{url_for('login')}}" class="btn btn-lg btn-secondary">시작하기</a>
+    </p>
+{% else %}
+<div class="ajax">
+    <div id="loadingBar">
+        <img id="loading-image" src="https://t1.daumcdn.net/cfile/tistory/2137C3335785AC9B11" alt="loading..."/>
+    </div>
+    <h1 class="cover-heading"><span class="text-warning">"{{id}}"</span> 님 안녕하세요<br> 보고싶은 뉴스 키워드를 입력하세요</h1>
+    <p class="lead">
+        <input type="text" id="inputSearch" name="inputSearch" class="form-control" placeholder="Keyword" required="true" autofocus>
+        <br>
+        <button class="btn btn-lg btn-info" id="searchBtn">검색</button>
+    </p>
+</div>
+{% endif%}
+
+<!--JQuery-->
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#loadingBar').hide()
+        $(document).on('click', '#searchBtn', function(){
+            $('#loadingBar').show()
+            keyword = $("#inputSearch").val();
+            console.log(keyword)
+            $.ajax({
+                type: 'POST',
+                url: '/search',
+                data: JSON.stringify({
+                    'keyword': keyword
+                }),
+                dataType : 'JSON',
+                contentType: "application/json",
+                success: function(result){
+                    $('#loadingBar').hide()
+                    alert('크롤링 성공!')
+                    crawlingPost(result.datas)
+                },
+                error: function(request, status, error){
+                    $('#loadingBar').hide()
+                    if(request.status==400){
+                        alert('검색어 입력해주세요')    
+                    }
+                    else{
+                        alert('검색결과가 없습니다.')
+                    }
+                }
+            })
+        });
+
+        function crawlingPost(datas){
+            var str = ""
+            if(datas.length > 0){
+                str += '<br><h3>검색결과 총 <span class="badge badge-info">' + datas.length + '</span> 개의 뉴스를 찾았습니다.</h3><hr style="border: solid 1px white;">'
+                $.each(datas, function(key, value){
+                    str += '<div class="card p-1 mb-2 bg-secondary text-white"><p>'
+                    str += '<a href="' + value.searched_news_url + '"'+ 'target="_blank"><h5>'
+                    str += value.searched_news_title + '</h5></a></p>'
+                    str += '<button class="btn btn-primary" id="storeBtn" index="' + value.searched_news_id + '">저장하기</button></div><br>'
+                })
+            }
+            $('.ajax').html(str)
+        }
+
+        $(document).on('click', '#storeBtn', function(){
+            index = $(this).attr("index");
+            console.log(index)
+            $.ajax({
+                type: 'POST',
+                url: '/store',
+                data: JSON.stringify({
+                    'index': index
+                }),
+                dataType : 'JSON',
+                contentType: "application/json",
+                success: function(data){
+                    alert('저장되었습니다.')
+                },
+                error: function(request, status, error){
+                    alert('ajax 통신 실패')
+                    console.log(error)
+                    alert(status)
+                    alert(error);
+                }
+            })
+        })
+    })
+</script>
+
+{% endblock %}
